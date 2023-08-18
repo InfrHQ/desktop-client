@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Infr</title>
+    <link rel="stylesheet" href="index.css" />
+    <script defer src="../scripts/setup.js"></script>
+    <script defer src="../scripts/utils.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+
+  <body class="mt-5">
+    <!-- Permissions Page -->
+    <div class="row justify-content-center container">
+      <div class="col-lg-8 col-md-10 col-sm-12">
+        <!-- Details/Stats Section -->
+
+        <!-- Stage 2 -->
+        <div class="card" id="stage2Card" style="display: none">
+          <div class="card-body">
+            <h4 class="card-title bg-warning" id="currentStageTitle">
+              Waiting for Permissions
+            </h4>
+            <p class="card-text" id="currentStageDescription">
+              We're waiting for you to grant permissions to collect data.
+            </p>
+            <button
+              class="btn btn-primary"
+              onclick="handleRequestPermissions()"
+              id="requestPermissionsButton"
+              style="display: none"
+            >
+              Request Permissions
+            </button>
+            <!-- Optionally you can add a section for showing stats or requests here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

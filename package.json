@@ -1,0 +1,62 @@
+{
+  "name": "infr",
+  "productName": "Infr",
+  "version": "1.0.0",
+  "description": "Infr desktop client is an Infr app that automates collection of data from your infrastructure and provides a simple interface to view and manage it.",
+  "main": "src/index.js",
+  "homepage": "https://getinfr.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/InfrHQ/desktop-client"
+  },
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
+    "format:check": "prettier --check 'src/**/*.{js,jsx,ts,tsx,css,md,json,html}'",
+    "format": "prettier --write 'src/**/*.{js,jsx,ts,tsx,css,md,json,html}'"
+  },
+  "keywords": [
+    "infr", "desktop client", "infr app"
+  ],
+  "author": {
+    "name": "Infr"
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write",
+      "git add"
+    ],
+    "src/**/*.{html,css,md,json}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "electron-squirrel-startup": "^1.0.0",
+    "electron-store": "^8.1.0",
+    "update-electron-app": "^2.0.1"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^6.2.1",
+    "@electron-forge/maker-deb": "^6.2.1",
+    "@electron-forge/maker-dmg": "^6.3.0",
+    "@electron-forge/maker-rpm": "^6.2.1",
+    "@electron-forge/maker-squirrel": "^6.2.1",
+    "@electron-forge/maker-zip": "^6.2.1",
+    "@electron-forge/plugin-auto-unpack-natives": "^6.2.1",
+    "electron": "25.4.0",
+    "eslint": "^8.47.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.28.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^14.0.0",
+    "prettier": "^3.0.2"
+  }
+}

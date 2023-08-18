@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Infr</title>
+    <link rel="stylesheet" href="index.css" />
+    <script defer src="../scripts/renderer.js"></script>
+    <script defer src="../scripts/utils.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+
+  <body class="mt-5 mb-5">
+    <!-- Settings/Sign Up Page -->
+    <div class="container" id="signup_page" style="display: block">
+      <div class="row justify-content-center">
+        <div>
+          <!-- Logo Section -->
+          <div class="text-center mb-4">
+            <img
+              src="https://res.cloudinary.com/dcwz20wdd/image/upload/v1680599484/image_myvtd9qocklxcbde.png"
+              alt="Infr Logo"
+              width="150"
+            />
+            <h1 class="mt-2">Welcome to Infr</h1>
+            <p>Set up your configuration below</p>
+          </div>
+
+          <!-- Server URI Input -->
+          <div class="form-group mb-4">
+            <input
+              type="text"
+              class="form-control"
+              id="serverUriInput"
+              placeholder="Enter Server URI"
+            />
+          </div>
+
+          <!-- API Key Input -->
+          <div class="form-group mb-4">
+            <input
+              type="text"
+              class="form-control"
+              id="apiKeyInput"
+              placeholder="Enter API Key"
+            />
+          </div>
+
+          <!-- Device ID Input -->
+          <div class="form-group">
+            <input
+              type="text"
+              class="form-control"
+              id="deviceIdInput"
+              placeholder="Enter Device ID"
+            />
+          </div>
+
+          <!-- Save Button -->
+          <div class="d-grid gap-2 mt-5" id="signUpSaveBtn">
+            <button class="btn btn-primary btn-large" onclick="saveSettings()">
+              Save
+            </button>
+          </div>
+
+          <!-- Error/Success card -->
+          <div id="signUpErrorCardHolder" style="display: none">
+            <div class="d-grid gap-2 card mt-5" id="signUpErrorCard">
+              <div class="card-body" id="signUpErrorCardBody">
+                <h4 class="card-title">Error</h4>
+                <p class="card-text" id="errorText">
+                  There was an error while trying to access your server. Please
+                  make sure the host & API Key are correct
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
