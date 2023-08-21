@@ -19,7 +19,9 @@
     "format": "prettier --write 'src/**/*.{js,jsx,ts,tsx,css,md,json,html}'"
   },
   "keywords": [
-    "infr", "desktop client", "infr app"
+    "infr",
+    "desktop-client",
+    "infr-app"
   ],
   "author": {
     "name": "Infr"
@@ -40,6 +42,7 @@
     "dotenv": "^16.3.1",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^8.1.0",
+    "mac-screen-capture-permissions": "^2.0.0",
     "update-electron-app": "^2.0.1"
   },
   "devDependencies": {

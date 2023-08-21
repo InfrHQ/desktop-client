@@ -33,7 +33,7 @@ npm install
 ```
 3. Run the app
 ```bash
-npm run dev
+npm run start
 ```
 
 ## Apps
