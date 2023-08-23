@@ -23,9 +23,6 @@ function setBtnAsEnabled(btnID, btnText, onclick) {
 
 function logout() {
     window.infrLogout.logout()
-
-    // Navigate to the main page
-    window.infrWindow.show('pages/index.html')
 }
 
 async function handleAutoLogout() {
