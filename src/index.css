@@ -1,7 +1,7 @@
 .custom-progress {
-  height: 100px; /* Adjust this value as per your need */
+    height: 100px; /* Adjust this value as per your need */
 }
 
 .custom-progress .progress-bar {
-  line-height: 100px; /* This ensures the text inside the bar is vertically centered. Adjust this value to match the height of .custom-progress */
+    line-height: 100px; /* This ensures the text inside the bar is vertically centered. Adjust this value to match the height of .custom-progress */
 }

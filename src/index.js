@@ -7,7 +7,7 @@ require('dotenv').config()
 const path = require('path')
 const { ipcMain } = require('electron')
 const storage_client = require('./connectors/storage')
-const storeData = require('./cron')
+const { storeData } = require('./cron')
 
 const handleServerChecks = require('./setup/handleServerChecks')
 const handlePermissions = require('./setup/handlePermissions')
@@ -47,7 +47,6 @@ const createWindow = () => {
     storage_client.set('windowHeight', height)
 
     setInterval(storeData, 3000)
-    //setTimeout(storeData, 3000);
 }
 
 // This method will be called when Electron has finished
@@ -101,6 +100,10 @@ ipcMain.handle('show-window', async (event, window) => {
     mainWindow.loadFile(path.join(__dirname, window)).then(() => {
         mainWindow.show()
     })
+})
+
+ipcMain.handle('get-window', async (event) => {
+    return mainWindow.getURL()
 })
 
 ipcMain.handle('logout', async (event) => {
