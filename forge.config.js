@@ -2,6 +2,8 @@ module.exports = {
 	packagerConfig: {
 		asar: true,
 		icon: "./src/assets/icons/icon",
+		platform: ["win32", "darwin", "linux"],
+        arch: ["x64", "arm64"],
 	},
 	rebuildConfig: {},
 	makers: [

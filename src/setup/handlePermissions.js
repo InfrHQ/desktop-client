@@ -1,16 +1,17 @@
-const { systemPreferences } = require('electron')
 const storage_client = require('../connectors/storage')
-
 const {
     hasScreenCapturePermission,
     hasPromptedForPermission,
     openSystemPreferences,
-} = require('mac-screen-capture-permissions')
+} = require('../tools/macScreenPermission')
 
 async function handlePermissions() {
+    console.log('handlePermissions')
+
     // If permissions are already granted, return true
     if (hasScreenCapturePermission()) {
         storage_client.set('setup_check__permissions', true)
+        console.log('Permissions already granted')
         return true
     }
 
@@ -23,6 +24,7 @@ async function handlePermissions() {
         await new Promise((resolve) => setTimeout(resolve, 10000))
         let hasCapturePermissions = hasScreenCapturePermission()
         storage_client.set('setup_check__permissions', hasCapturePermissions)
+        console.log('Permissions granted')
         return hasCapturePermissions
     }
 
@@ -36,10 +38,13 @@ async function handlePermissions() {
         await new Promise((resolve) => setTimeout(resolve, 10000))
         let hasCapturePermissions = hasScreenCapturePermission()
         storage_client.set('setup_check__permissions', hasCapturePermissions)
+        console.log('Permissions granted')
         return hasCapturePermissions
     }
 
     return hasScreenCapturePermission()
 }
+
+setTimeout(handlePermissions, 3000)
 
 module.exports = handlePermissions

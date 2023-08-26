@@ -1,62 +1,56 @@
+const storage_client = require('../connectors/storage')
 const {
-    getMacAppName,
+    getMacAppNameAndBundleID,
     getMacChromeCurrentTabURL,
     getMacAppWindowTitle,
 } = require('../tools/systemCall')
 const { desktopCapturer, nativeImage } = require('electron')
-const storage_client = require('../connectors/storage')
+const telemetry = require('../utils/telemetry')
 
-async function takeScreenshot(windowHeight, windowWidth) {
-    try {
-        const sources = await desktopCapturer.getSources({
-            types: ['screen'],
-            thumbnailSize: {
-                height: windowHeight,
-                width: windowWidth,
-            },
-        })
-
-        // Select the first screen source
-        const source = sources[0]
-
-        // Create a thumbnail from the source and return it
-        return source.thumbnail.toDataURL()
-    } catch (error) {
-        console.error('Error capturing screenshot:', error)
-        throw error
-    }
-}
-
-async function getAttributeData() {
-    const data = {}
-    const appName = getMacAppName()
-    data.app_name = appName
-
-    if (appName === 'Google Chrome') {
-        const url = getMacChromeCurrentTabURL()
-        data.current_url = url
+class DataStore {
+    constructor() {
+        this.setupData = {}
+        this.isRunning = false
+        this.dataLastUpdated = null
+        this.shouldStop = false
     }
 
-    const window_name = getMacAppWindowTitle()
-    data.window_name = window_name
+    async _takeScreenshot() {
+        try {
+            const { windowHeight, windowWidth } = this.setupData
+            const sources = await desktopCapturer.getSources({
+                types: ['screen'],
+                thumbnailSize: { height: windowHeight, width: windowWidth },
+            })
 
-    return data
-}
+            return sources[0].thumbnail.toDataURL()
+        } catch (error) {
+            console.error('Error capturing screenshot:', error)
+            throw error
+        }
+    }
 
-async function makeSegmentCall(
-    image,
-    date_generated,
-    data,
-    infr_server_uri,
-    infr_api_key,
-    infr_device_id,
-) {
-    try {
-        // Convert native image to b64
-        const buffer = image.toJPEG(100)
-        const base64Image = buffer.toString('base64')
+    async _getAttributeData() {
+        const { appName, bundleId } = getMacAppNameAndBundleID()
+        const data = {
+            app_name: appName,
+            bundle_id: bundleId,
+            window_name: getMacAppWindowTitle(),
+        }
+
+        if (appName === 'Google Chrome') {
+            data.current_url = getMacChromeCurrentTabURL()
+        }
+
+        return data
+    }
+
+    async _makeSegmentCall(image, date_generated, data) {
+        const { infr_server_uri, infr_api_key, infr_device_id } = this.setupData
+        const segment_id = 'seg_' + Math.random().toString(36).substring(2)
+        telemetry('segment_call__start', { segment_id })
+        const base64Image = image.toJPEG(100).toString('base64')
         const url = `${infr_server_uri}/v1/segment/create?device_id=${infr_device_id}&type=screenshot`
-
         const json_data = {
             date_generated,
             json_metadata: data,
@@ -73,143 +67,124 @@ async function makeSegmentCall(
                 body: JSON.stringify(json_data),
             })
 
-            if (!resp.ok) {
+            if (resp.ok) {
+                telemetry('segment_call__success', { segment_id })
+            } else {
                 throw new Error('Error making segment call')
             }
         } catch (error) {
-            // Handle a failed request by storing it locally & try again later
+            telemetry('segment_call__error', { segment_id })
             console.error('Error making segment call:', error)
 
-            // Get existing failed requests
-            var failed_requests = storage_client.get('failed_requests') || []
-            let new_failed_request = {
+            /*
+            Failure handling for future use
+            const failed_requests = storage_client.get('failed_requests') || []
+            failed_requests.push({
                 url,
                 json_data,
                 error,
                 api_key: infr_api_key,
                 sent_at: Math.floor(Date.now() / 1000),
-            }
-            failed_requests.push(new_failed_request)
+            })
             storage_client.set('failed_requests', failed_requests)
-
+            */
             throw error
         }
-    } catch (err) {
-        console.error('Error making segment call: ', err)
-        throw err
     }
-}
 
-async function getRelevantData() {
-    let data = {}
-    data['windowHeight'] = storage_client.get('windowHeight')
-    data['windowWidth'] = storage_client.get('windowWidth')
-    data['infr_server_uri'] = storage_client.get('infr_server_uri')
-    data['infr_api_key'] = storage_client.get('infr_api_key')
-    data['infr_device_id'] = storage_client.get('infr_device_id')
-    data['setup_check__permissions'] = storage_client.get(
-        'setup_check__permissions',
-    )
-    data['setup_check__server'] = storage_client.get('setup_check__server')
-    return data
-}
+    async _getRelevantData() {
+        return {
+            windowHeight: storage_client.get('windowHeight'),
+            windowWidth: storage_client.get('windowWidth'),
+            infr_server_uri: storage_client.get('infr_server_uri'),
+            infr_api_key: storage_client.get('infr_api_key'),
+            infr_device_id: storage_client.get('infr_device_id'),
+            setup_check__permissions: storage_client.get(
+                'setup_check__permissions',
+            ),
+            setup_check__server: storage_client.get('setup_check__server'),
+            manual_stop: false,
+        }
+    }
 
-async function storeData() {
-    console.log('Storing data...')
-
-    try {
-        const setup_data = await getRelevantData()
-
-        // If any of the setup data is missing, we can't continue
+    async _checkDataValidity(getFromStorage = false) {
         if (
-            !setup_data['windowHeight'] ||
-            !setup_data['windowWidth'] ||
-            !setup_data['infr_server_uri'] ||
-            !setup_data['infr_api_key'] ||
-            !setup_data['infr_device_id']
+            Object.keys(this.setupData).length === 0 ||
+            Math.random() < 0.01 ||
+            getFromStorage
         ) {
-            console.log('Missing setup data, aborting...')
-            return
-        }
-        if (!setup_data['setup_check__permissions']) {
-            console.log('Missing permissions, aborting...')
-            return
-        }
-        if (!setup_data['setup_check__server']) {
-            console.log('Missing server, aborting...')
-            return
+            this.setupData = await this._getRelevantData()
         }
 
-        const imageDataURL = await takeScreenshot(
-            setup_data['windowHeight'],
-            setup_data['windowWidth'],
-        )
-        const data = await getAttributeData()
+        const requiredFields = [
+            'windowHeight',
+            'windowWidth',
+            'infr_server_uri',
+            'infr_api_key',
+            'infr_device_id',
+        ]
+        const isValid = requiredFields.every((field) => this.setupData[field])
+
+        if (!isValid) {
+            console.log('Missing setup data, aborting...')
+            return false
+        }
+        if (!this.setupData['setup_check__permissions']) {
+            console.log('Missing permissions, aborting...')
+            return false
+        }
+        if (!this.setupData['setup_check__server']) {
+            console.log('Missing server, aborting...')
+            return false
+        }
+        return true
+    }
+
+    async _storeData() {
+        if (!(await this._checkDataValidity())) return
+
+        const imageDataURL = await this._takeScreenshot()
+        const data = await this._getAttributeData()
         const date_generated = Math.floor(Date.now() / 1000)
         const image = nativeImage.createFromDataURL(imageDataURL)
 
-        makeSegmentCall(
-            image,
-            date_generated,
-            data,
-            setup_data['infr_server_uri'],
-            setup_data['infr_api_key'],
-            setup_data['infr_device_id'],
-        )
-    } catch (error) {
-        console.error('Error in storeData function:', error)
+        await this._makeSegmentCall(image, date_generated, data)
+        this.dataLastUpdated = new Date()
     }
-}
 
-async function handleFailedRequests() {
-    try {
-        // Fetch the stored failed requests
-        const failedRequests = storage_client.get('failed_requests') || []
-
-        if (failedRequests.length === 0) {
-            console.log('No failed requests to handle.')
+    run() {
+        if (this.isRunning) {
+            console.log('Data storing process is already running.')
             return
         }
 
-        console.log(`Handling ${failedRequests.length} failed requests...`)
+        this.isRunning = true
+        this.shouldStop = false // Reset the stop flag in case it was previously set
 
-        // Create an array to hold any requests that still fail
-        let stillFailedRequests = []
-
-        for (let request of failedRequests) {
-            const { url, json_data, api_key, device_id } = request
-
+        const runner = async () => {
+            if (this.shouldStop) {
+                this.isRunning = false
+                console.log('Manual stop triggered. Stopping data storing.')
+                return
+            }
             try {
-                const resp = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Infr-API-Key': api_key,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(json_data),
-                })
-
-                if (!resp.ok) {
-                    throw new Error('Error retrying segment call')
-                }
-
-                console.log(
-                    `Successfully resent failed request for ${request.request_for}`,
-                )
+                this._storeData()
+                setTimeout(runner, 3000)
             } catch (error) {
-                console.error(
-                    `Failed to resend request for ${request.request_for}:`,
-                    error,
-                )
-                stillFailedRequests.push(request)
+                console.error('Error in storeData:', error)
+                setTimeout(runner, 3000)
             }
         }
+        runner()
+    }
 
-        // Update the storage with any requests that still failed
-        storage_client.set('failed_requests', stillFailedRequests)
-    } catch (error) {
-        console.error('Error in handleFailedRequests function:', error)
+    stop() {
+        this.shouldStop = true
+    }
+
+    updateData() {
+        return this._checkDataValidity(true)
     }
 }
 
-module.exports = { storeData, handleFailedRequests }
+module.exports = DataStore

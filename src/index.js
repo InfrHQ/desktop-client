@@ -1,26 +1,27 @@
-const { app, BrowserWindow } = require('electron')
-require('dotenv').config()
-
-// Auto-updates
-// require('update-electron-app')()
-
+const { app, BrowserWindow, ipcMain, screen } = require('electron')
 const path = require('path')
-const { ipcMain } = require('electron')
+require('dotenv').config()
 const storage_client = require('./connectors/storage')
-const { storeData } = require('./cron')
-
+const telemetry = require('./utils/telemetry')
+const DataStore = require('./cron')
 const handleServerChecks = require('./setup/handleServerChecks')
 const handlePermissions = require('./setup/handlePermissions')
 
+// Uncomment if you want to enable auto-updates
+// require('update-electron-app')()
+
 let mainWindow
+let dataStoreCron = new DataStore()
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
     app.quit()
 }
 
-const createWindow = () => {
-    // Create the browser window.
+/**
+ * Create the main browser window.
+ */
+function createWindow() {
     mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
@@ -30,47 +31,45 @@ const createWindow = () => {
         },
         icon: path.join(__dirname, 'assets/icons/icon.png'),
     })
+    telemetry('app__start')
 
-    // and load the index.html of the app.
     mainWindow.loadFile(path.join(__dirname, 'pages/index.html'))
 
-    // Open the DevTools.
-    mainWindow.webContents.openDevTools()
+    // Uncomment if you want to open DevTools by default
+    // mainWindow.webContents.openDevTools()
 
-    // We cannot require the screen module until the app is ready.
-    const { screen } = require('electron')
+    setWindowDimensionsToStorage()
+    dataStoreCron.run()
+}
 
-    // Create a window that fills the screen's available work area.
+/**
+ * Set the screen's available work area dimensions to the storage client.
+ */
+function setWindowDimensionsToStorage() {
     const primaryDisplay = screen.getPrimaryDisplay()
     const { width, height } = primaryDisplay.size
     storage_client.set('windowWidth', width)
     storage_client.set('windowHeight', height)
-
-    setInterval(storeData, 3000)
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
+// Event to be called when Electron is ready to create browser windows.
 app.on('ready', createWindow)
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
+// Quit the app when all windows are closed (except on macOS).
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit()
     }
 })
 
+// On macOS, recreate a window when the dock icon is clicked and no other windows are open.
 app.on('activate', () => {
-    // On OS X it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) {
         createWindow()
     }
 })
 
+// IPC handlers
 ipcMain.on('appstorage-set', (event, data) => {
     storage_client.set(data['key'], data['value'])
 })
@@ -80,26 +79,27 @@ ipcMain.handle('appstorage-get', (event, key) => {
 })
 
 ipcMain.handle('setup-perform-server-checks', async (event) => {
-    return await handleServerChecks()
+    const resp = await handleServerChecks()
+    dataStoreCron.updateData()
+    return resp
 })
 
 ipcMain.handle('setup-request-permissions', async (event) => {
-    return await handlePermissions()
+    const resp = await handlePermissions()
+    dataStoreCron.updateData()
+    return resp
 })
 
 ipcMain.handle('setup-get-status', async (event) => {
-    let server_status = storage_client.get('setup_check__server')
-    let permissions_status = storage_client.get('setup_check__permissions')
     return {
-        server_status,
-        permissions_status,
+        server_status: storage_client.get('setup_check__server'),
+        permissions_status: storage_client.get('setup_check__permissions'),
     }
 })
 
 ipcMain.handle('show-window', async (event, window) => {
-    mainWindow.loadFile(path.join(__dirname, window)).then(() => {
-        mainWindow.show()
-    })
+    await mainWindow.loadFile(path.join(__dirname, window))
+    mainWindow.show()
 })
 
 ipcMain.handle('get-window', async (event) => {
@@ -108,7 +108,7 @@ ipcMain.handle('get-window', async (event) => {
 
 ipcMain.handle('logout', async (event) => {
     storage_client.clear()
-    mainWindow.loadFile(path.join(__dirname, 'pages/index.html')).then(() => {
-        mainWindow.show()
-    })
+    dataStoreCron.stop()
+    await mainWindow.loadFile(path.join(__dirname, 'pages/index.html'))
+    mainWindow.show()
 })

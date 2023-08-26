@@ -28,14 +28,16 @@
                 <div class="card" id="stage2Card">
                     <div class="card-body">
                         <h4
-                            class="card-title bg-warning"
+                            class="card-title bg-warning p-3 rounded rounded-lg"
                             id="currentStageTitle"
                         >
                             Waiting for Permissions
                         </h4>
                         <p class="card-text" id="currentStageDescription">
                             We're waiting for you to grant permissions to
-                            collect data.
+                            collect data. If you've already granted permissions
+                            or don&apos;t see a prompt, you need to close this
+                            window and open it again.
                         </p>
                         <button
                             class="btn btn-primary"
@@ -53,4 +55,7 @@
     </body>
     <script defer src="../scripts/setup.js"></script>
     <script defer src="../scripts/utils.js"></script>
+    <script defer>
+        setTimeout(handlePermissions, 3000)
+    </script>
 </html>

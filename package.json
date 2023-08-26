@@ -1,7 +1,7 @@
 {
   "name": "infr",
   "productName": "Infr",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Infr desktop client is an Infr app that automates collection of data from your infrastructure and provides a simple interface to view and manage it.",
   "main": "src/index.js",
   "homepage": "https://getinfr.com",
@@ -13,6 +13,7 @@
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
+    "make:darwin:x64": "electron-forge make --platform=darwin --arch=x64",
     "publish": "electron-forge publish",
     "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
     "format:check": "prettier --check 'src/**/*.{js,jsx,ts,tsx,css,md,json,html}'",
@@ -42,7 +43,7 @@
     "dotenv": "^16.3.1",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^8.1.0",
-    "mac-screen-capture-permissions": "^2.0.0",
+    "electron-util": "^0.17.2",
     "update-electron-app": "^2.0.1"
   },
   "devDependencies": {
