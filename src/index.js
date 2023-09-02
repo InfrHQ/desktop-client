@@ -6,9 +6,13 @@ const telemetry = require('./utils/telemetry')
 const DataStore = require('./cron')
 const handleServerChecks = require('./setup/handleServerChecks')
 const handlePermissions = require('./setup/handlePermissions')
+const {
+    setIncognitoKeywords,
+    getIncognitoKeywords,
+} = require('./tools/incognitoKeywords')
 
 // Uncomment if you want to enable auto-updates
-// require('update-electron-app')()
+require('update-electron-app')()
 
 let mainWindow
 let dataStoreCron = new DataStore()
@@ -95,6 +99,16 @@ ipcMain.handle('setup-get-status', async (event) => {
         server_status: storage_client.get('setup_check__server'),
         permissions_status: storage_client.get('setup_check__permissions'),
     }
+})
+
+ipcMain.handle('dashboard-get-incognito-keywords', async (event) => {
+    return getIncognitoKeywords()
+})
+
+ipcMain.handle('dashboard-set-incognito-keywords', async (event, keywords) => {
+    let resp = setIncognitoKeywords(keywords)
+    dataStoreCron.updateData()
+    return resp
 })
 
 ipcMain.handle('show-window', async (event, window) => {

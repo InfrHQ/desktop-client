@@ -25,6 +25,20 @@ contextBridge.exposeInMainWorld('infrSetup', {
     },
 })
 
+contextBridge.exposeInMainWorld('infrDashboard', {
+    getIncognitoKeywords: async function () {
+        let resp = await ipcRenderer.invoke('dashboard-get-incognito-keywords')
+        return resp
+    },
+    setIncognitoKeywords: async function (keywords) {
+        let resp = await ipcRenderer.invoke(
+            'dashboard-set-incognito-keywords',
+            keywords,
+        )
+        return resp
+    },
+})
+
 contextBridge.exposeInMainWorld('infrWindow', {
     show: async function (window) {
         await ipcRenderer.invoke('show-window', window)

@@ -5,6 +5,7 @@ const {
     getMacAppWindowTitle,
 } = require('../tools/systemCall')
 const { desktopCapturer, nativeImage } = require('electron')
+const { getIncognitoKeywords } = require('../tools/incognitoKeywords')
 const telemetry = require('../utils/telemetry')
 
 class DataStore {
@@ -104,6 +105,7 @@ class DataStore {
             ),
             setup_check__server: storage_client.get('setup_check__server'),
             manual_stop: false,
+            incognito_keywords: getIncognitoKeywords(),
         }
     }
 
@@ -140,11 +142,92 @@ class DataStore {
         return true
     }
 
+    async _checkForIncognito(window_name, app_name, current_url, bundle_id) {
+        const { incognito_keywords } = this.setupData
+        if (!incognito_keywords) return false
+        if (typeof incognito_keywords !== 'object') return false
+        if (incognito_keywords.length === 0) return false
+
+        // The lowercase versions of the strings are used for comparison
+        // The incognito_keywords array should be lowercase
+        // None of the words in array should be in the window_name, app_name, or current_url
+        // either of the window name, app name, or current url can be null
+        var window_name_lower = window_name
+        var app_name_lower = app_name
+        var current_url_lower = current_url
+        var bundle_id_lower = bundle_id
+
+        if (typeof window_name_lower === 'string')
+            window_name_lower = window_name_lower.toLowerCase()
+        else window_name_lower = ''
+
+        if (typeof app_name_lower === 'string')
+            app_name_lower = app_name_lower.toLowerCase()
+        else app_name_lower = ''
+
+        if (typeof current_url_lower === 'string')
+            current_url_lower = current_url_lower.toLowerCase()
+        else current_url_lower = ''
+
+        if (typeof bundle_id_lower === 'string')
+            bundle_id_lower = bundle_id_lower.toLowerCase()
+        else bundle_id_lower = ''
+
+        var isIncognito = false
+        for (var i = 0; i < incognito_keywords.length; i++) {
+            var keyword = incognito_keywords[i]
+
+            // Must be string and at least 2 characters long
+            if (typeof keyword !== 'string') continue
+            if (keyword.length < 2) continue
+            keyword = keyword.toLowerCase()
+
+            // Split the keyword into words, & check if all words are in the string
+            // Each sub-keyword must appear in at least one of the strings
+            var keyword_words = keyword.split(' ')
+            var all_words_included = keyword_words.map(() => false)
+            for (var j = 0; j < keyword_words.length; j++) {
+                var keyword_word = keyword_words[j]
+                if (window_name_lower.includes(keyword_word))
+                    all_words_included[j] = true
+                if (app_name_lower.includes(keyword_word))
+                    all_words_included[j] = true
+                if (current_url_lower.includes(keyword_word))
+                    all_words_included[j] = true
+                if (bundle_id_lower.includes(keyword_word))
+                    all_words_included[j] = true
+            }
+
+            // If all words are included, then the keyword is in the string
+            var all_words_included = all_words_included.every((word) => word)
+            if (all_words_included) {
+                isIncognito = true
+                break
+            }
+        }
+
+        return isIncognito
+    }
+
     async _storeData() {
+        console.log('\n\n')
         if (!(await this._checkDataValidity())) return
 
         const imageDataURL = await this._takeScreenshot()
         const data = await this._getAttributeData()
+
+        // Check if the data is incognito
+        const isIncognito = await this._checkForIncognito(
+            data.window_name,
+            data.app_name,
+            data.current_url,
+            data.bundle_id,
+        )
+        if (isIncognito) {
+            console.log('Incognito detected, not storing data.')
+            return
+        }
+
         const date_generated = Math.floor(Date.now() / 1000)
         const image = nativeImage.createFromDataURL(imageDataURL)
 
