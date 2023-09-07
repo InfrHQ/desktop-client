@@ -16,12 +16,13 @@ async function handlePermissions() {
             window.infrWindow.show('pages/dashboard.html')
         } else {
             // Show the button
-            document.getElementById('requestPermissionsBtn').style.display =
+            document.getElementById('requestPermissionsButton').style.display =
                 'block'
         }
     } catch (err) {
         console.error('Error making permission checks: ', err)
-        document.getElementById('requestPermissionsBtn').style.display = 'block'
+        document.getElementById('requestPermissionsButton').style.display =
+            'block'
         throw err
     }
 }

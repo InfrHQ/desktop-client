@@ -8,13 +8,13 @@ function setIncognitoKeywords(listOfItems) {
     // Ensure the list is an array
     if (!Array.isArray(listOfItems)) {
         console.log('incognitoKeywords: not an array')
-        return
+        return []
     }
 
     // Ensure the list is not empty
     if (listOfItems.length === 0) {
         console.log('incognitoKeywords: empty array')
-        return
+        return []
     }
 
     // Ensure all words are strings and at least 2 characters long
@@ -23,7 +23,7 @@ function setIncognitoKeywords(listOfItems) {
     )
     if (invalidItems.length > 0) {
         console.log('incognitoKeywords: invalid items')
-        return
+        return []
     }
 
     // Lowercase all items in the list

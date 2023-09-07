@@ -6,8 +6,6 @@ const {
 } = require('../tools/macScreenPermission')
 
 async function handlePermissions() {
-    console.log('handlePermissions')
-
     // If permissions are already granted, return true
     if (hasScreenCapturePermission()) {
         storage_client.set('setup_check__permissions', true)

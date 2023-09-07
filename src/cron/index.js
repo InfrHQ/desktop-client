@@ -211,6 +211,7 @@ class DataStore {
 
     async _storeData() {
         console.log('\n\n')
+        console.log('Storing data...')
         if (!(await this._checkDataValidity())) return
 
         const imageDataURL = await this._takeScreenshot()

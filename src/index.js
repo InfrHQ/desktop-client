@@ -10,9 +10,11 @@ const {
     setIncognitoKeywords,
     getIncognitoKeywords,
 } = require('./tools/incognitoKeywords')
+const initSentry = require('./connectors/sentry')
 
 // Uncomment if you want to enable auto-updates
 require('update-electron-app')()
+initSentry()
 
 let mainWindow
 let dataStoreCron = new DataStore()
