@@ -30,7 +30,7 @@ async function handlePermissions() {
 // This function is called when the user clicks the "Request Permissions" button
 async function handleRequestPermissions() {
     // Set the button to loading
-    setBtnAsLoading('requestPermissionsBtn')
+    setBtnAsLoading('requestPermissionsButton')
 
     await window.infrSetup.performCheckPermissions()
     let status = await window.infrSetup.getStatus()
@@ -42,7 +42,7 @@ async function handleRequestPermissions() {
     // If we get here, we failed to get the permissions
     // Set the button back to normal
     setBtnAsNormal(
-        'requestPermissionsBtn',
+        'requestPermissionsButton',
         'Request Permissions',
         'handleRequestPermissions()',
     )

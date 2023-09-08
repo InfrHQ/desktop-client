@@ -91,8 +91,7 @@ ipcMain.handle('setup-perform-server-checks', async (event) => {
 })
 
 ipcMain.handle('setup-request-permissions', async (event) => {
-    const resp = await handlePermissions()
-    dataStoreCron.updateData()
+    const resp = await handlePermissions(dataStoreCron)
     return resp
 })
 

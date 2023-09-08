@@ -5,17 +5,20 @@ const {
     openSystemPreferences,
 } = require('../tools/macScreenPermission')
 
-async function handlePermissions() {
+async function handlePermissions(cronObject) {
     // If permissions are already granted, return true
-    if (hasScreenCapturePermission()) {
+    let checkIfHasPermissions = hasScreenCapturePermission()
+    if (checkIfHasPermissions) {
         storage_client.set('setup_check__permissions', true)
         console.log('Permissions already granted')
+        cronObject.updateData()
         return true
     }
 
     // If the permissions dialog has not been shown, it will be shown automatically when
     // `hasScreenCapturePermission` is called, so we check if it was prompted.
-    if (!hasPromptedForPermission()) {
+    let checkIfHasPrompted = hasPromptedForPermission()
+    if (!checkIfHasPrompted) {
         // We just showed the prompt by calling `hasScreenCapturePermission`, so
         // we'll wait a bit to allow the user time to respond. This delay is arbitrary
         // and in a real-world scenario, you might want to use events or other signals.
@@ -23,6 +26,7 @@ async function handlePermissions() {
         let hasCapturePermissions = hasScreenCapturePermission()
         storage_client.set('setup_check__permissions', hasCapturePermissions)
         console.log('Permissions granted')
+        cronObject.updateData()
         return hasCapturePermissions
     }
 
@@ -37,9 +41,11 @@ async function handlePermissions() {
         let hasCapturePermissions = hasScreenCapturePermission()
         storage_client.set('setup_check__permissions', hasCapturePermissions)
         console.log('Permissions granted')
+        cronObject.updateData()
         return hasCapturePermissions
     }
 
+    cronObject.updateData()
     return hasScreenCapturePermission()
 }
 
