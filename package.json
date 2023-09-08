@@ -42,6 +42,7 @@
   "dependencies": {
     "@sentry/electron": "^4.10.0",
     "dotenv": "^16.3.1",
+    "electron-log": "^4.4.8",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^8.1.0",
     "electron-util": "^0.17.2",
