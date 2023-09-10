@@ -7,6 +7,7 @@ const {
 const { desktopCapturer, nativeImage } = require('electron')
 const { getIncognitoKeywords } = require('../tools/incognitoKeywords')
 const telemetry = require('../utils/telemetry')
+const crypto = require('crypto')
 
 class DataStore {
     constructor() {
@@ -14,6 +15,7 @@ class DataStore {
         this.isRunning = false
         this.dataLastUpdated = null
         this.shouldStop = false
+        this.latestImageHashes = []
     }
 
     async _takeScreenshot() {
@@ -209,12 +211,53 @@ class DataStore {
         return isIncognito
     }
 
+    // Helper method to update the image hashes list and check duplicates
+    _generateHashForImage(base64Image) {
+        const hash = crypto.createHash('sha256')
+        hash.update(base64Image)
+        return hash.digest('hex')
+    }
+    _checkForDuplicateImageHash(base64Image) {
+        const currentImageHash = this._generateHashForImage(base64Image)
+
+        this.latestImageHashes.unshift(currentImageHash) // Add to the beginning
+        if (this.latestImageHashes.length > 10) {
+            // Keep only the latest 10
+            this.latestImageHashes.pop()
+        }
+
+        if (this.latestImageHashes.length < 3) {
+            return false
+        }
+
+        // Check if the latest 3 hashes are the same
+        return (
+            this.latestImageHashes[0] === this.latestImageHashes[1] &&
+            this.latestImageHashes[1] === this.latestImageHashes[2]
+        )
+    }
+
     async _storeData() {
         console.log('\n\n')
         console.log('Storing data...')
+
+        // Console log the time for logging
+        const now = new Date()
+        const myTime = now.toLocaleString('en-US')
+        console.log(myTime)
+
         if (!(await this._checkDataValidity())) return
 
         const imageDataURL = await this._takeScreenshot()
+
+        // Check if hash is duplicate
+        if (this._checkForDuplicateImageHash(imageDataURL)) {
+            console.log(
+                'Duplicate image detected, user is inactive. Not storing data.',
+            )
+            return
+        }
+
         const data = await this._getAttributeData()
 
         // Check if the data is incognito
