@@ -1,8 +1,9 @@
 const storage_client = require('../connectors/storage')
 const {
     getMacAppNameAndBundleID,
-    getMacChromeCurrentTabURL,
+    getMacBrowserCurrentTabURL,
     getMacAppWindowTitle,
+    getMacBrowserWindowHTML,
 } = require('../tools/systemCall')
 const { desktopCapturer, nativeImage } = require('electron')
 const { getIncognitoKeywords } = require('../tools/incognitoKeywords')
@@ -35,14 +36,16 @@ class DataStore {
 
     async _getAttributeData() {
         const { appName, bundleId } = getMacAppNameAndBundleID()
-        const data = {
+        var data = {
             app_name: appName,
             bundle_id: bundleId,
             window_name: getMacAppWindowTitle(),
         }
 
-        if (appName === 'Google Chrome') {
-            data.current_url = getMacChromeCurrentTabURL()
+        if (appName === 'Google Chrome' || appName === 'Brave Browser') {
+            data.current_url = getMacBrowserCurrentTabURL(appName)
+            data.page_html = getMacBrowserWindowHTML(appName)
+            data.links = this._extractLinks(data.page_html)
         }
 
         return data
