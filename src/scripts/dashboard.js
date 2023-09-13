@@ -60,8 +60,58 @@ function addTagOnClick(tag_name) {
     tagify.addTags(tag_name)
 }
 
+function handleChangeInCodeStorage() {
+    let btn = document.getElementById('btn_is_code_storage_enabled')
+    let label = document.getElementById('btn_is_code_storage_enabled_label')
+
+    if (btn.checked) {
+        window.infrDashboard.setCodeStorageEnabled(true)
+
+        // Update text & class
+        label.classList.remove('btn-outline-danger')
+        label.classList.add('btn-outline-success')
+        label.innerHTML = 'Code Storage Enabled'
+    } else {
+        window.infrDashboard.setCodeStorageEnabled(false)
+
+        // Update text
+        label.classList.remove('btn-outline-success')
+        label.classList.add('btn-outline-danger')
+        label.innerHTML = 'Code Storage Disabled'
+    }
+}
+
+function loadCodeStorageEnabled() {
+    try {
+        window.infrDashboard.getCodeStorageEnabled().then((enabled) => {
+            let btn = document.getElementById('btn_is_code_storage_enabled')
+            let label = document.getElementById(
+                'btn_is_code_storage_enabled_label',
+            )
+
+            // Null is considered true
+            if (enabled === false) {
+                btn.checked = false
+
+                // Update text
+                label.classList.remove('btn-outline-success')
+                label.classList.add('btn-outline-danger')
+                label.innerHTML = 'Code Storage Disabled'
+            } else {
+                btn.checked = true
+
+                // Update text & class
+                label.classList.remove('btn-outline-danger')
+                label.classList.add('btn-outline-success')
+                label.innerHTML = 'Code Storage Enabled'
+            }
+        })
+    } catch (err) {}
+}
+
 function loadPage() {
     loadIncognitoKeywords()
+    loadCodeStorageEnabled()
 }
 
 loadPage()

@@ -25,17 +25,27 @@ function getMacAppWindowTitle() {
     }
 }
 
-function getMacChromeCurrentTabURL() {
+function getMacBrowserCurrentTabURL(browserName) {
     try {
-        const url = execSync(
-            'osascript -e \'tell app "Google Chrome" to get the URL of the active tab of its first window\'',
-        )
-            .toString()
-            .trim()
+        let script = ''
 
+        if (browserName === 'Safari') {
+            script =
+                'tell application "Safari" to get URL of current tab of front window'
+        } else if (
+            browserName === 'Google Chrome' ||
+            browserName === 'Brave Browser'
+        ) {
+            script = `tell application "${browserName}" to get the URL of the active tab of its first window`
+        } else {
+            throw new Error(`Unsupported browser: ${browserName}`)
+        }
+
+        const url = execSync(`osascript -e '${script}'`).toString().trim()
+        console.log(`${browserName} URL: ${url}`)
         return url
     } catch (err) {
-        console.error("Error fetching Chrome's active tab URL:", err)
+        console.error(`Error fetching ${browserName}'s active tab URL:`, err)
         return null
     }
 }
@@ -95,10 +105,47 @@ function getMacAppNameAndBundleID() {
     }
 }
 
+function getMacBrowserWindowHTML(browserName) {
+    var script = ``
+    if (browserName === 'Google Chrome') {
+        script = `
+tell application "Google Chrome"
+    set activeTab to active tab of window 1
+    set pageHTML to execute activeTab javascript "document.documentElement.outerHTML"
+    return pageHTML
+end tell
+    `
+    } else if (browserName === 'Safari') {
+        script = `
+tell application "Safari"
+    set pageHTML to do JavaScript "document.documentElement.outerHTML" in current tab of window 1
+    return pageHTML
+end tell
+    `
+    } else if (browserName === 'Brave Browser') {
+        script = `
+tell application "Brave Browser"
+    set activeTab to active tab of window 1
+    set pageHTML to execute activeTab javascript "document.documentElement.outerHTML"
+    return pageHTML
+end tell
+`
+    }
+    try {
+        const html = execSync(`osascript -e '${script}'`).toString().trim()
+
+        return html
+    } catch (err) {
+        console.error("Error fetching browser's active tab HTML:", err)
+        return null
+    }
+}
+
 module.exports = {
     getMacAppWindowTitle,
-    getMacChromeCurrentTabURL,
     getMacAppName,
     getMacBundleId,
     getMacAppNameAndBundleID,
+    getMacBrowserCurrentTabURL,
+    getMacBrowserWindowHTML,
 }
