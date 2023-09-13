@@ -27,15 +27,25 @@ function getMacAppWindowTitle() {
 
 function getMacBrowserCurrentTabURL(browserName) {
     try {
-        const url = execSync(
-            `osascript -e \'tell app "${browserName}" to get the URL of the active tab of its first window\'`,
-        )
-            .toString()
-            .trim()
+        let script = ''
 
+        if (browserName === 'Safari') {
+            script =
+                'tell application "Safari" to get URL of current tab of front window'
+        } else if (
+            browserName === 'Google Chrome' ||
+            browserName === 'Brave Browser'
+        ) {
+            script = `tell application "${browserName}" to get the URL of the active tab of its first window`
+        } else {
+            throw new Error(`Unsupported browser: ${browserName}`)
+        }
+
+        const url = execSync(`osascript -e '${script}'`).toString().trim()
+        console.log(`${browserName} URL: ${url}`)
         return url
     } catch (err) {
-        console.error("Error fetching Chrome's active tab URL:", err)
+        console.error(`Error fetching ${browserName}'s active tab URL:`, err)
         return null
     }
 }

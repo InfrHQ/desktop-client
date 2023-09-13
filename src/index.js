@@ -112,6 +112,16 @@ ipcMain.handle('dashboard-set-incognito-keywords', async (event, keywords) => {
     return resp
 })
 
+ipcMain.handle('dashboard-get-code-storage-enabled', async (event) => {
+    let val = storage_client.get('code_storage_enabled')
+    return val
+})
+
+ipcMain.handle('dashboard-set-code-storage-enabled', async (event, enabled) => {
+    storage_client.set('code_storage_enabled', enabled)
+    dataStoreCron.updateData()
+})
+
 ipcMain.handle('show-window', async (event, window) => {
     await mainWindow.loadFile(path.join(__dirname, window))
     mainWindow.show()

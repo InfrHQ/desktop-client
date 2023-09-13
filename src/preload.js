@@ -37,6 +37,19 @@ contextBridge.exposeInMainWorld('infrDashboard', {
         )
         return resp
     },
+    getCodeStorageEnabled: async function () {
+        let resp = await ipcRenderer.invoke(
+            'dashboard-get-code-storage-enabled',
+        )
+        return resp
+    },
+    setCodeStorageEnabled: async function (enabled) {
+        let resp = await ipcRenderer.invoke(
+            'dashboard-set-code-storage-enabled',
+            enabled,
+        )
+        return resp
+    },
 })
 
 contextBridge.exposeInMainWorld('infrWindow', {

@@ -28,7 +28,7 @@
         />
     </head>
 
-    <body class="">
+    <body class="mb-10 p-10">
         <!-- Nav Bar -->
         <nav class="navbar bg-body-tertiary">
             <div class="container-fluid">
@@ -89,6 +89,108 @@
 		</div>
         -->
 
+        <!-- Modal -->
+        <div
+            class="modal fade"
+            id="how_to_enable_applescript_js_modal"
+            tabindex="-1"
+            aria-labelledby="how_to_enable_applescript_js_modal"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1
+                            class="modal-title fs-5"
+                            id="how_to_enable_applescript_js_modal"
+                        >
+                            Enable Applescript on Your Browsers
+                        </h1>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="">
+                            To enable granular storage, you will need to allow
+                            applescript execution in Brave, Chrome and Safari.
+                        </p>
+
+                        <p>For Brave and Chrome:</p>
+                        <ol>
+                            <li>Open the browsers (Brave and Chrome)</li>
+                            <li>Go to "View"</li>
+                            <li>Go to "Developer"</li>
+                            <li>
+                                Click on "Allow Javascript from Apple Events"
+                            </li>
+                            <li>Restart Chrome, Brave and Infr</li>
+                        </ol>
+
+                        <p>For Safari:</p>
+                        <ol>
+                            <li>Open the Safari Browser</li>
+                            <li>Go to "Develop"</li>
+                            <li>
+                                Click on "Allow Javascript from Apple Events"
+                            </li>
+                            <li>Restart Safari and Infr</li>
+                        </ol>
+                        <img
+                            class="img-fluid"
+                            src="https://res.cloudinary.com/dcwz20wdd/video/upload/q_auto:eco/v1694600455/Enable_AppleScript_Access_trjggc.gif"
+                        />
+                    </div>
+                    <div class="modal-footer"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Code Storage -->
+        <div class="container mt-5">
+            <div class="card">
+                <h5 class="card-header bg-primary text-white">
+                    Granular Storage
+                    <button class="mb-n2 btn btn-success btn-sm ml-3">
+                        Recommended
+                    </button>
+                </h5>
+                <div class="card-body">
+                    <p class="card-text">
+                        Allow Infr to store relivable snippets from websites you
+                        visit. This will allow you to revisit the page at any
+                        time in the future.
+                    </p>
+                    <p
+                        class="h6 mb-3"
+                        type="button"
+                        class="btn btn-primary"
+                        data-bs-toggle="modal"
+                        data-bs-target="#how_to_enable_applescript_js_modal"
+                    >
+                        How do I enable this on the browser?
+                    </p>
+                    <input
+                        type="checkbox"
+                        class="btn-check"
+                        id="btn_is_code_storage_enabled"
+                        onclick="handleChangeInCodeStorage()"
+                        autocomplete="off"
+                        checked
+                    />
+                    <label
+                        class="btn btn-outline-success"
+                        for="btn_is_code_storage_enabled"
+                        id="btn_is_code_storage_enabled_label"
+                        >Code Storage Enabled</label
+                    ><br />
+                </div>
+            </div>
+        </div>
+
         <!-- incognito Keywords -->
         <div class="container mt-5">
             <div class="card">
@@ -98,8 +200,8 @@
                 <div class="card-body">
                     <p class="card-text">
                         Apps or websites that include any of the following
-                        keywords will not be tracked. Capitalization does not
-                        matter.
+                        keywords will not be tracked, stored or recorded in any
+                        way. Capitalization does not matter.
                     </p>
                     <p class="h6">Useful defaults</p>
 
