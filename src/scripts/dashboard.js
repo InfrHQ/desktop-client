@@ -109,6 +109,68 @@ function loadCodeStorageEnabled() {
     } catch (err) {}
 }
 
+function handlePause() {
+    let btnPause = document.getElementById('pause_button')
+
+    if (btnPause.state === 'paused') {
+        //window.infrDashboard.setPause(false)
+        btnPause.state = 'run'
+        btnPause.innerHTML = `<i class="bi bi-pause"></i>Pause`
+        btnPause.classList.remove('btn-outline-success')
+        btnPause.classList.add('btn-outline-warning')
+
+        // Update main card text, spinner & title
+        let mainCardTitle = document.getElementById('main_card_title')
+        mainCardTitle.innerHTML = `Background processes are hard at work`
+
+        let mainCardSpinner = document.getElementById('main_card_spinner')
+        mainCardSpinner.style.display = 'block'
+        mainCardSpinner.classList.remove('bg-warning')
+        mainCardSpinner.classList.add('bg-success')
+
+        let mainCardSpinnerSpan = document.getElementById(
+            'main_card_spinner_span',
+        )
+        mainCardSpinnerSpan.classList.add('spinner-grow')
+        mainCardSpinnerSpan.classList.add('spinner-grow-m')
+
+        let mainCardText = document.getElementById('main_card_text')
+        mainCardText.innerHTML = `
+        Background screen capture is in progress. Feel free to
+        close this window & continue working. To stop data
+        collection, simply use the "Pause" button above.
+        `
+    } else {
+        //window.infrDashboard.setPause(true)
+        btnPause.state = 'paused'
+        btnPause.innerHTML = `<i class="bi bi-play"></i>Run`
+        btnPause.classList.remove('btn-outline-warning')
+        btnPause.classList.add('btn-outline-success')
+
+        // Update main card text, spinner & title
+        let mainCardTitle = document.getElementById('main_card_title')
+        mainCardTitle.innerHTML = 'Background processes are paused'
+
+        let mainCardSpinner = document.getElementById('main_card_spinner')
+        mainCardSpinner.style.display = 'none'
+        mainCardSpinner.classList.remove('bg-success')
+        mainCardSpinner.classList.add('bg-warning')
+
+        let mainCardSpinnerSpan = document.getElementById(
+            'main_card_spinner_span',
+        )
+        mainCardSpinnerSpan.classList.remove('spinner-grow')
+        mainCardSpinnerSpan.classList.remove('spinner-grow-m')
+
+        let mainCardText = document.getElementById('main_card_text')
+        mainCardText.innerHTML = `
+        Background screen capture is paused. 
+        No data will be captured while Infr is paused. 
+        Please click the "Run" button to resume.
+        `
+    }
+}
+
 function loadPage() {
     loadIncognitoKeywords()
     loadCodeStorageEnabled()
