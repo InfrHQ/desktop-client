@@ -50,6 +50,18 @@ contextBridge.exposeInMainWorld('infrDashboard', {
         )
         return resp
     },
+    pauseCron: async function () {
+        let resp = await ipcRenderer.invoke('dashboard-pause-cron')
+        return resp
+    },
+    resumeCron: async function () {
+        let resp = await ipcRenderer.invoke('dashboard-resume-cron')
+        return resp
+    },
+    isPausedCron: async function () {
+        let resp = await ipcRenderer.invoke('dashboard-ispaused-cron')
+        return resp
+    },
 })
 
 contextBridge.exposeInMainWorld('infrWindow', {

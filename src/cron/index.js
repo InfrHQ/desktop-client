@@ -121,6 +121,7 @@ class DataStore {
             manual_stop: false,
             incognito_keywords: getIncognitoKeywords(),
             code_storage_enabled: storage_client.get('code_storage_enabled'),
+            is_paused: storage_client.get('is_paused'),
         }
     }
 
@@ -298,6 +299,11 @@ class DataStore {
             return
         }
 
+        if (this.isPaused()) {
+            console.log('Data storing process is paused.')
+            return
+        }
+
         this.isRunning = true
         this.shouldStop = false // Reset the stop flag in case it was previously set
 
@@ -324,6 +330,23 @@ class DataStore {
 
     updateData() {
         return this._checkDataValidity(true)
+    }
+
+    /*
+    Pause, resume & check functions
+    */
+    pause() {
+        storage_client.set('is_paused', true)
+        this.stop()
+    }
+
+    resume() {
+        storage_client.set('is_paused', false)
+        this.run()
+    }
+
+    isPaused() {
+        return storage_client.get('is_paused')
     }
 }
 

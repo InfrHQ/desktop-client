@@ -109,11 +109,15 @@ function loadCodeStorageEnabled() {
     } catch (err) {}
 }
 
-function handlePause() {
+function handlePause(state) {
     let btnPause = document.getElementById('pause_button')
+    let old_state = state
+    if (old_state === undefined || old_state === null) {
+        old_state = btnPause.state
+    }
 
-    if (btnPause.state === 'paused') {
-        //window.infrDashboard.setPause(false)
+    if (old_state === 'paused') {
+        window.infrDashboard.resumeCron()
         btnPause.state = 'run'
         btnPause.innerHTML = `<i class="bi bi-pause"></i>Pause`
         btnPause.classList.remove('btn-outline-success')
@@ -141,7 +145,7 @@ function handlePause() {
         collection, simply use the "Pause" button above.
         `
     } else {
-        //window.infrDashboard.setPause(true)
+        window.infrDashboard.pauseCron(true)
         btnPause.state = 'paused'
         btnPause.innerHTML = `<i class="bi bi-play"></i>Run`
         btnPause.classList.remove('btn-outline-warning')
@@ -171,9 +175,19 @@ function handlePause() {
     }
 }
 
+async function loadPauseState() {
+    let isPaused = await window.infrDashboard.isPausedCron()
+    if (isPaused) {
+        handlePause('run')
+    } else {
+        handlePause('paused')
+    }
+}
+
 function loadPage() {
     loadIncognitoKeywords()
     loadCodeStorageEnabled()
+    loadPauseState()
 }
 
 loadPage()

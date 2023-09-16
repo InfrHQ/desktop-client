@@ -117,6 +117,18 @@ ipcMain.handle('dashboard-get-code-storage-enabled', async (event) => {
     return val
 })
 
+ipcMain.handle('dashboard-pause-cron', async (event) => {
+    dataStoreCron.pause()
+})
+
+ipcMain.handle('dashboard-resume-cron', async (event) => {
+    dataStoreCron.resume()
+})
+
+ipcMain.handle('dashboard-ispaused-cron', async (event) => {
+    return dataStoreCron.isPaused()
+})
+
 ipcMain.handle('dashboard-set-code-storage-enabled', async (event, enabled) => {
     storage_client.set('code_storage_enabled', enabled)
     dataStoreCron.updateData()
