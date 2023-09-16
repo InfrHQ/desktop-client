@@ -42,7 +42,16 @@
                     />
                     Infr
                 </a>
-                <form class="d-flex" role="search">
+                <div class="d-flex space-x-2" role="search">
+                    <button
+                        class="btn btn-outline-warning mx-3"
+                        onclick="handlePause()"
+                        state="run"
+                        id="pause_button"
+                    >
+                        <i class="bi bi-pause"></i>
+                        Pause
+                    </button>
                     <button
                         class="btn btn-outline-danger"
                         onclick="logout()"
@@ -50,29 +59,33 @@
                     >
                         Logout
                     </button>
-                </form>
+                </div>
             </div>
         </nav>
 
         <!-- Success Data Collection  -->
         <div class="container mt-5" id="success_div">
             <div class="card">
-                <h5 class="card-header bg-success d-flex">
+                <h5
+                    class="card-header bg-success d-flex"
+                    id="main_card_spinner"
+                >
                     <span
                         class="spinner-grow spinner-grow-m bg-light"
                         aria-hidden="true"
+                        id="main_card_spinner_span"
                         style="animation-duration: 1.5s"
                     >
                     </span>
                 </h5>
                 <div class="card-body">
-                    <h5 class="card-title">
+                    <h5 class="card-title" id="main_card_title">
                         Background processes are hard at work
                     </h5>
-                    <p class="card-text">
+                    <p class="card-text" id="main_card_text">
                         Background screen capture is in progress. Feel free to
                         close this window & continue working. To stop data
-                        collection, simply log out using the button above.
+                        collection, simply use the "Pause" button above.
                     </p>
                     <a
                         href="https://meetreplay.com"
